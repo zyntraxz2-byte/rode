@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ee1182">
+<meta name="referrer" content="same-origin">
+<meta name="description" content="Rode: nail studio bookings, ledger and client inspo.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rode">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<title>Rode</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ee1182'/%3E%3Ctext x='32' y='45' font-family='Arial,sans-serif' font-size='38' font-weight='800' text-anchor='middle' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="authwrap" id="auth" hidden>
+  <div class="authbox">
+    <h1 class="mark" aria-label="Rode">RODE</h1>
+    <div class="glass pad authcard">
+      <form id="loginForm" autocomplete="on">
+        <h2>Sign in</h2>
+        <p class="note" style="margin-top:4px">Use the username and password given to you by the studio.</p>
+        <div class="fs" style="margin-top:14px">
+          <label class="f"><span>Username</span><input id="lUser" name="username" required maxlength="64" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+          <label class="f"><span>Password</span><input id="lPass" name="password" type="password" required maxlength="128" autocomplete="current-password"></label>
+          <p class="warn" id="loginMsg" role="alert" hidden></p>
+          <button class="btn primary" id="lGo" type="submit">Sign in</button>
+          <button class="btn ghost" id="lForgot" type="button" data-act="forgot" hidden>Forgot password?</button>
+        </div>
+      </form>
+      <form id="forgotForm" autocomplete="on" hidden>
+        <h2>Reset your password</h2>
+        <p class="note" style="margin-top:4px">Enter your username or email. If an account matches, we will email you a link to choose a new password.</p>
+        <div class="fs" style="margin-top:14px">
+          <label class="f"><span>Username or email</span><input id="gId" required maxlength="128" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+          <p class="warn" id="forgotMsg" role="alert" hidden></p>
+          <p class="note" id="forgotOk" role="status" hidden></p>
+          <button class="btn primary" id="gGo" type="submit">Email me a link</button>
+          <button class="btn ghost" type="button" data-act="tologin">Back to sign in</button>
+        </div>
+      </form>
+      <form id="resetForm" autocomplete="off" hidden>
+        <h2>Choose a new password</h2>
+        <p class="note" style="margin-top:4px">Pick a password you have not used before.</p>
+        <div class="fs" style="margin-top:14px">
+          <label class="f"><span>New password</span><input id="rNew" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+          <label class="f"><span>Repeat new password</span><input id="rNew2" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+          <p class="note">At least 10 characters, and not your username.</p>
+          <p class="warn" id="resetMsg" role="alert" hidden></p>
+          <button class="btn primary" id="rGo" type="submit">Save password</button>
+          <button class="btn ghost" type="button" data-act="tologin">Back to sign in</button>
+        </div>
+      </form>
+      <form id="forceForm" autocomplete="off" hidden>
+        <h2>Choose a new password</h2>
+        <p class="note" style="margin-top:4px">For your security you need to replace the temporary password before continuing.</p>
+        <div class="fs" style="margin-top:14px">
+          <label class="f"><span>Current (temporary) password</span><input id="fCur" type="password" required maxlength="128" autocomplete="current-password"></label>
+          <label class="f"><span>New password</span><input id="fNew" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+          <label class="f"><span>Repeat new password</span><input id="fNew2" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+          <p class="note">At least 10 characters, and not your username.</p>
+          <p class="warn" id="forceMsg" role="alert" hidden></p>
+          <button class="btn primary" id="fGo" type="submit">Save and continue</button>
+          <button class="btn ghost" type="button" data-act="signout">Sign out</button>
+        </div>
+      </form>
+    </div>
+    <noscript><p class="note" style="color:#fff;margin-top:12px">Rode needs JavaScript to run.</p></noscript>
+  </div>
+</div>
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div class="brand">
+      <div>
+        <h1 class="mark" aria-label="Rode">RODE</h1>
+        <p class="eyebrow" id="eyebrow" style="margin-top:8px"></p>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <div class="sync" id="sync" role="status" data-s="connecting"><i></i><span>Connecting</span></div>
+      <button class="sync acctbtn" id="acctBtn" type="button" data-act="acct" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg><span id="acctName">Account</span></button>
+    </div>
+  </header>
+
+  <nav class="tabs glass" aria-label="Sections">
+    <a href="#overview" data-v="overview"><svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span>Overview</span></a>
+    <a href="#book" data-v="book"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span>Bookings</span></a>
+    <a href="#inspo" data-v="inspo"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg><span>Inspo</span></a>
+    <a href="#money" data-v="money"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><circle cx="12" cy="12.5" r="2.6"/></svg><span>Money</span></a>
+    <a href="#setup" data-v="setup"><svg viewBox="0 0 24 24"><path d="M4 8h8M18 8h2M4 16h2M12 16h8"/><circle cx="15" cy="8" r="2.2"/><circle cx="9" cy="16" r="2.2"/></svg><span>Setup</span></a>
+    <a href="#users" data-v="users"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><path d="M16 5.6a3.2 3.2 0 0 1 0 5.8M18 14.8c1.6.8 2.6 2.3 3 4.7"/></svg><span>Users</span></a>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="view" id="v-overview" hidden>
+      <div class="glass banner" id="sampleBanner" hidden>
+        <span>You are looking at sample data.</span>
+        <button class="btn sm" data-act="clearSample" data-gate="sample">Clear sample data</button>
+      </div>
+      <article class="glass pad" id="todayCard">
+        <div class="head">
+          <div><p class="eyebrow">Today</p><p class="big"><span id="tCount">0</span> <span class="tl" id="tLbl">appointments</span></p></div>
+          <button class="btn sm" data-act="go" data-go="book" data-gate="book">Open schedule</button>
+        </div>
+        <p class="note" id="tSub" style="margin-top:4px"></p>
+      </article>
+      <div class="chips" id="periodChips" role="group" aria-label="Period"></div>
+      <div class="kpis">
+        <article class="glass hero">
+          <p class="eyebrow" id="kLabel">Net profit</p>
+          <p class="big" id="kProfit">0</p>
+          <p class="note" id="kSub"></p>
+        </article>
+        <article class="glass pad"><p class="eyebrow">Income</p><p class="mid inc" id="kInc">0</p></article>
+        <article class="glass pad"><p class="eyebrow">Expenses</p><p class="mid exp" id="kExp">0</p></article>
+      </div>
+      <article class="glass pad" id="emptyHint" hidden>
+        <h2>Your books are empty</h2>
+        <p class="muted" style="margin-top:6px">Add a sale or an expense, book a client, or load sample data to see how everything fits together.</p>
+        <div class="inline" style="flex-wrap:wrap">
+          <button class="btn primary" data-act="go" data-go="money" data-gate="money">Add income or expense</button>
+          <button class="btn" data-act="go" data-go="book" data-gate="book">Book a client</button>
+          <button class="btn ghost" data-act="sample" data-gate="sample">Load sample data</button>
+        </div>
+      </article>
+      <div class="two">
+        <article class="glass pad">
+          <div class="head"><h2>Income vs expenses</h2><div class="legend"><span><b style="background:var(--income)"></b>Income</span><span><b style="background:var(--expense)"></b>Expenses</span></div></div>
+          <div id="chartHost"></div>
+          <p class="readout" id="readout"></p>
+        </article>
+        <article class="glass pad">
+          <h2>Balances</h2>
+          <p class="note">Opening balance plus everything recorded, by where the money sits.</p>
+          <ul class="bal" id="balList"></ul>
+        </article>
+      </div>
+      <div class="two">
+        <article class="glass pad"><h2>Where money went</h2><div id="expBreak"></div></article>
+        <article class="glass pad"><h2>Where money came from</h2><div id="incBreak"></div></article>
+      </div>
+      <article class="glass pad">
+        <div class="head"><h2>Today's bookings</h2><button class="btn sm ghost" data-act="go" data-go="book" data-gate="book">Open schedule</button></div>
+        <div id="todayList"></div>
+      </article>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section class="view" id="v-book" hidden>
+      <article class="glass pad" id="quick" hidden>
+        <div class="head"><h2>Quick book</h2></div>
+        <p class="note">Tap the microphone on your keyboard and say the booking, or type it. Include the client, service, day and time.</p>
+        <textarea id="qText" rows="3" maxlength="600" placeholder="Book Nimali for a gel polish tomorrow at 3 pm with Dilani. She wants pink chrome." style="margin-top:10px"></textarea>
+        <div class="inline" style="flex-wrap:wrap"><button class="btn" id="qMic" type="button" data-act="qmic">Speak</button><button class="btn primary" id="qGo" type="button" data-act="qparse">Read booking</button><button class="btn ghost" type="button" data-act="qclear">Clear</button></div>
+        <div id="qOut" aria-live="polite"></div>
+      </article>
+      <div class="two">
+        <article class="glass pad">
+          <div class="dayhead">
+            <button class="btn sq" data-act="dprev" aria-label="Previous day">&#8249;</button>
+            <div class="t"><h2 id="dTitle"></h2><p class="note num" id="dMeta"></p></div>
+            <button class="btn sm" data-act="dtoday">Today</button>
+            <button class="btn sq" data-act="dnext" aria-label="Next day">&#8250;</button>
+          </div>
+          <div class="week" id="weekStrip"></div>
+          <div class="alist" id="dayList"></div>
+        </article>
+        <article class="glass pad">
+          <h2>New booking</h2>
+          <form id="apptForm" autocomplete="off" style="margin-top:12px">
+            <fieldset class="fs" data-w="book">
+              <div class="fields">
+                <label class="f"><span>Client</span><input id="aClient" required maxlength="80" placeholder="Name"></label>
+                <label class="f"><span>Phone</span><input id="aPhone" inputmode="tel" maxlength="30" placeholder="Optional"></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Service</span><select id="aService" required></select></label>
+                <label class="f" id="aCustomWrap" hidden><span>Service name</span><input id="aCustom" maxlength="60"></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Price</span><input id="aPrice" type="number" min="0" step="any" inputmode="decimal" required></label>
+                <label class="f"><span>Minutes</span><input id="aMins" type="number" min="5" step="5" inputmode="numeric" required></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Team member</span><select id="aStaff"></select></label>
+                <label class="f"><span>Date</span><input id="aDate" type="date" required></label>
+                <label class="f"><span>Start time</span><input id="aTime" type="time" step="900" required></label>
+              </div>
+              <label class="f"><span>Note</span><textarea id="aNote" rows="2" maxlength="300" placeholder="Colour, design, allergies"></textarea></label>
+              <div class="f" id="aInspoWrap" hidden><span>Inspo photos</span>
+                <div class="pick"><label class="btn sm filebtn">Choose photos<input id="aFiles" type="file" accept="image/*" multiple></label><span class="note" id="aFilesNote">Optional</span></div>
+                <div class="prev" id="aPrev"></div></div>
+              <p class="warn" id="aWarn" role="alert" hidden></p>
+              <button class="btn primary" id="aSubmit" type="submit">Add to book</button>
+            </fieldset>
+          </form>
+        </article>
+      </div>
+    </section>
+
+    <!-- INSPO -->
+    <section class="view" id="v-inspo" hidden>
+      <article class="glass pad">
+        <h2>Client inspo</h2>
+        <p class="note">Photos clients bring for their sets, grouped by client. Add them from a booking.</p>
+        <div id="inspoWrap"></div>
+      </article>
+    </section>
+
+    <!-- MONEY -->
+    <section class="view" id="v-money" hidden>
+      <div class="two">
+        <article class="glass pad">
+          <h2>Add a transaction</h2>
+          <form id="txnForm" autocomplete="off" style="margin-top:12px">
+            <fieldset class="fs" data-w="money">
+              <div class="seg" role="radiogroup" aria-label="Type">
+                <label><input type="radio" name="tType" value="income" checked><span>Income</span></label>
+                <label><input type="radio" name="tType" value="expense"><span>Expense</span></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Amount</span><input id="tAmount" type="number" min="0" step="any" inputmode="decimal" required></label>
+                <label class="f"><span>Date</span><input id="tDate" type="date" required></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Category</span><select id="tCat"></select></label>
+                <label class="f"><span>Paid with</span><select id="tMethod"></select></label>
+              </div>
+              <label class="f"><span>Note</span><input id="tNote" maxlength="120" placeholder="What was it for?"></label>
+              <button class="btn primary" type="submit">Save transaction</button>
+            </fieldset>
+          </form>
+        </article>
+        <article class="glass pad">
+          <div class="head"><h2>Ledger</h2><button class="btn sm ghost" id="exportBtn" data-act="export" hidden>Export CSV</button></div>
+          <div class="chips" id="typeChips" role="group" aria-label="Filter" style="margin-top:10px">
+            <button class="chip" data-act="mtype" data-t="all" aria-pressed="true">All</button>
+            <button class="chip" data-act="mtype" data-t="income" aria-pressed="false">Income</button>
+            <button class="chip" data-act="mtype" data-t="expense" aria-pressed="false">Expenses</button>
+          </div>
+          <label class="f" style="margin-top:10px"><span>Month</span><select id="mMonth"></select></label>
+          <p class="note num" id="mSummary" style="margin-top:12px"></p>
+          <ul class="rows" id="txnList"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- SETUP -->
+    <section class="view" id="v-setup" hidden>
+      <div class="two">
+        <article class="glass pad">
+          <h2>Currency</h2>
+          <fieldset class="fs" data-w="setup" style="margin-top:12px">
+            <label class="f"><span>Currency</span><select id="sCur"></select></label>
+          </fieldset>
+        </article>
+        <article class="glass pad">
+          <h2>Opening balances</h2>
+          <p class="note">What each account held on the day you start using this ledger.</p>
+          <fieldset class="fs" data-w="setup" style="margin-top:12px">
+            <div class="fields">
+              <label class="f"><span>Cash</span><input id="oCash" type="number" step="any" inputmode="decimal"></label>
+              <label class="f"><span>Card</span><input id="oCard" type="number" step="any" inputmode="decimal"></label>
+              <label class="f"><span>Bank</span><input id="oBank" type="number" step="any" inputmode="decimal"></label>
+            </div>
+          </fieldset>
+        </article>
+      </div>
+      <div class="two">
+        <article class="glass pad">
+          <h2>Team</h2>
+          <fieldset class="fs" data-w="setup"><div class="tags" id="staffTags"></div>
+            <form class="inline" id="staffForm" autocomplete="off"><input id="staffName" maxlength="40" placeholder="Add a team member" aria-label="Team member name"><button class="btn primary" type="submit">Add</button></form>
+          </fieldset>
+        </article>
+        <article class="glass pad">
+          <h2>Service menu</h2>
+          <p class="note">Starter menu. Change names and prices to match yours.</p>
+          <div id="svcList"></div>
+          <form id="svcForm" autocomplete="off">
+            <fieldset class="fs" data-w="setup">
+              <div class="svc">
+                <label class="f"><span>New service</span><input id="nsName" maxlength="60" required></label>
+                <label class="f"><span>Price</span><input id="nsPrice" type="number" min="0" step="any" inputmode="decimal" required></label>
+                <label class="f"><span>Min</span><input id="nsMins" type="number" min="5" step="5" inputmode="numeric" required></label>
+                <button class="btn primary" type="submit">Add</button>
+              </div>
+            </fieldset>
+          </form>
+        </article>
+      </div>
+      <article class="glass pad">
+        <h2>Where your data lives</h2>
+        <p class="muted" style="margin-top:6px">Your books are stored on the Rode server and shared with everyone who has access. Photos and bookings are backed up with the server data. You can also export the ledger as a CSV from the Money tab at any time.</p>
+        <div class="inline" style="flex-wrap:wrap">
+          <button class="btn" data-act="sample" data-gate="sample">Load sample data</button>
+          <button class="btn ghost" data-act="clearSample" data-gate="sample">Clear sample data</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- NO ACCESS -->
+    <article class="glass pad" id="noAccess" hidden>
+      <h2>No access yet</h2>
+      <p class="muted" style="margin-top:6px">Your account does not have access to any section. Ask the studio administrator to update your permissions.</p>
+    </article>
+
+    <!-- USERS (administrators) -->
+    <section class="view" id="v-users" hidden>
+      <div class="two">
+        <article class="glass pad">
+          <h2>Add a user</h2>
+          <p class="note">Create a sign-in for a team member or a customer. Customers can book appointments and manage only their own bookings and photos.</p>
+          <form id="userForm" autocomplete="off" style="margin-top:12px">
+            <fieldset class="fs">
+              <div class="fields">
+                <label class="f"><span>Full name</span><input id="uName" required maxlength="80" autocomplete="off"></label>
+                <label class="f"><span>Username</span><input id="uUser" required maxlength="64" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="e.g. nimali or an email"></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Phone</span><input id="uPhone" inputmode="tel" maxlength="30" placeholder="Optional" autocomplete="off"></label>
+                <label class="f"><span>Email (for password reset)</span><input id="uEmail" type="email" maxlength="120" placeholder="Optional" autocapitalize="none" autocomplete="off"></label>
+              </div>
+              <div class="fields">
+                <label class="f"><span>Role</span><select data-role-for="create" id="uRole"></select></label>
+              </div>
+              <div class="f"><span>Access</span><div class="access" id="uAccess"></div><p class="note" id="uRoleNote"></p></div>
+              <div class="f"><span>Temporary password</span>
+                <div class="inline" style="margin-top:0"><input id="uPass" type="text" required minlength="10" maxlength="128" autocomplete="off" autocapitalize="none" spellcheck="false"><button class="btn" type="button" data-act="genPass" data-target="uPass">Generate</button></div>
+                <span class="note">At least 10 characters. Share it with the person securely.</span></div>
+              <label class="check"><input type="checkbox" id="uMust" checked><span>Ask them to choose their own password at first sign-in</span></label>
+              <p class="warn" id="uWarn" role="alert" hidden></p>
+              <button class="btn primary" id="uSubmit" type="submit">Create user</button>
+            </fieldset>
+          </form>
+          <div class="qsum" id="uCreated" hidden></div>
+        </article>
+        <article class="glass pad">
+          <div class="head"><h2>People</h2><span class="note" id="uCount"></span></div>
+          <div class="chips" id="uFilter" role="group" aria-label="Filter people" style="margin-top:10px">
+            <button class="chip" data-act="ufilter" data-f="all" aria-pressed="true">Everyone</button>
+            <button class="chip" data-act="ufilter" data-f="team" aria-pressed="false">Team</button>
+            <button class="chip" data-act="ufilter" data-f="customer" aria-pressed="false">Customers</button>
+          </div>
+          <div id="userList"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="modal" id="acct" role="dialog" aria-modal="true" aria-labelledby="acctTitle" hidden>
+  <div class="glass pad sheet">
+    <div class="head"><h2 id="acctTitle">Your account</h2><button class="btn sm ghost" type="button" data-act="acctx">Close</button></div>
+    <p class="note" id="acctWho" style="margin-top:6px"></p>
+    <form id="acctForm" autocomplete="off" style="margin-top:14px">
+      <div class="fs">
+        <h3 style="font:700 15px var(--font-display)">Change password</h3>
+        <label class="f"><span>Current password</span><input id="pCur" type="password" required maxlength="128" autocomplete="current-password"></label>
+        <label class="f"><span>New password</span><input id="pNew" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+        <label class="f"><span>Repeat new password</span><input id="pNew2" type="password" required minlength="10" maxlength="128" autocomplete="new-password"></label>
+        <p class="warn" id="acctMsg" role="alert" hidden></p>
+        <button class="btn primary" id="pGo" type="submit">Update password</button>
+      </div>
+    </form>
+    <div class="inline" style="margin-top:16px"><button class="btn" type="button" data-act="signout">Sign out</button></div>
+  </div>
+</div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Inspo photo" hidden>
+  <div class="lbbar"><span id="lbCap"></span><span class="lbbtns"><button class="btn sm" id="lbRm" data-act="lbrm" type="button">Remove</button><button class="btn sm" data-act="lbx" type="button">Close</button></span></div>
+  <div class="lbimg"><button class="btn sq" data-act="lbp" type="button" aria-label="Previous photo">&#8249;</button><img id="lbImg" alt=""><button class="btn sq" data-act="lbn" type="button" aria-label="Next photo">&#8250;</button></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="/app.js" defer></script>
+</body>
+</html>

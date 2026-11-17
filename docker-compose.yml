@@ -1,0 +1,13 @@
+services:
+  rode:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    ports:
+      - "3000:3000"      # put a TLS reverse proxy (Caddy/nginx/Traefik) in front for production
+    volumes:
+      - rode-data:/data
+volumes:
+  rode-data:
