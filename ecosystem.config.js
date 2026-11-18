@@ -3,6 +3,7 @@ module.exports = {
     name: 'rode',
     cwd: '/var/www/31_rode',
     script: 'src/server.js',
+    interpreter: '/opt/node22/bin/node',
     node_args: '--env-file=/var/www/31_rode/.env',
     instances: 1,
     exec_mode: 'fork',
